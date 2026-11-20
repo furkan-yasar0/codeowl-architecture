@@ -1,6 +1,6 @@
-# 🦉 CodeOwl — Architecture & Database Design
+# CodeOwl — Architecture & Database Design
 
-> **Note:** This repository contains only the database schema and architectural documentation.  
+> **Note:** This repository contains only the database schema and architectural documentation.
 > Source code is closed-source. This repo exists to showcase the system design and technical decisions.
 
 ---
@@ -17,7 +17,7 @@ CodeOwl is a full-featured **developer community platform** built with PHP 8.x a
 | Database | MySQL / MariaDB |
 | Auth | Google OAuth 2.0 |
 | Encryption | OpenSSL — AES-128-CBC |
-| Security | Prepared Statements, MD5 file naming |
+| Security | Prepared Statements, hash-based file naming |
 
 ## Core Features
 
@@ -32,7 +32,7 @@ CodeOwl is a full-featured **developer community platform** built with PHP 8.x a
 
 ## Database Architecture
 
-11 relational tables:
+11 tables. The only formal FK is `forum.c_id → categories.id`. Other relationships are maintained via `username` string references — a design choice made during early development that I would replace with integer FK relationships in a future version.
 
 | Table | Purpose |
 |---|---|
@@ -48,39 +48,23 @@ CodeOwl is a full-featured **developer community platform** built with PHP 8.x a
 | `lastmessages` | DM inbox summary |
 | `follow` | User follow relationships |
 
+See [`schema.sql`](./schema.sql) for the full table structure.
+
 ## Key Technical Decisions
 
 **DM Room Key:** Two usernames sorted alphabetically → joined → base64 encoded. Same room code regardless of who initiates.
 
 **Duplicate Like Prevention:** Separate junction tables per content type prevent duplicate likes without complex locking.
 
-**Cascade Username Update:** Username change propagates across all related tables in a single operation.
+**Cascade Username Update:** Username change propagates across all related tables in a single operation. This is necessary because relationships are stored as username strings rather than integer foreign keys.
 
-**File Security:** Files renamed with `md5(time() . $name)`. MIME type validated per category.
-
----
+**File Security:** Files renamed with a time-seeded hash. MIME type validated per category.
 
 ## ER Diagram
 
 ```mermaid
 erDiagram
-  users ||--o{ forum : "creates"
-  users ||--o{ commentsforum : "writes"
-  users ||--o{ likes : "gives"
-  users ||--o{ likescomments : "gives"
-  users ||--o{ devhub : "publishes"
-  users ||--o{ likedevhub : "gives"
-  users ||--o{ messages : "sends"
-  users ||--o{ lastmessages : "has"
-  users ||--o{ follow : "follows"
-  categories ||--o{ forum : "categorizes"
-  categories ||--o{ devhub : "categorizes"
-  forum ||--o{ commentsforum : "has"
-  forum ||--o{ likes : "receives"
-  commentsforum ||--o{ likescomments : "receives"
-  devhub ||--o{ likedevhub : "receives"
-  messages }o--|| lastmessages : "summarized in"
-
+  categories ||--o{ forum : "c_id FK"
   users {
     int id PK
     string username
@@ -107,29 +91,29 @@ erDiagram
     string username
     string text
     int likes
-    int forum_id FK
+    int forum_id
   }
   likes {
     int id PK
     string username
-    int forum_id FK
+    int forum_id
   }
   likescomments {
     int id PK
     string username
-    int comment_id FK
+    int comment_id
   }
   devhub {
     int id PK
     string creater
     string title
     int likes
-    int c_id FK
+    int c_id
   }
   likedevhub {
     int id PK
     string username
-    int d_id FK
+    int d_id
   }
   messages {
     int id PK
@@ -152,13 +136,15 @@ erDiagram
   }
 ```
 
+---
+
 *Built by [Furkan Yaşar](https://linkedin.com/in/furkan-yasar0)*
 
 ---
 
-# 🦉 CodeOwl — Mimari ve Veritabanı Tasarımı
+# CodeOwl — Mimari ve Veritabanı Tasarımı
 
-> **Not:** Bu repo yalnızca veritabanı şemasını ve mimari dokümantasyonu içermektedir.  
+> **Not:** Bu repo yalnızca veritabanı şemasını ve mimari dokümantasyonu içermektedir.
 > Kaynak kod kapalı kaynaklıdır.
 
 ---
@@ -175,7 +161,7 @@ CodeOwl, PHP 8.x ve MySQL ile geliştirilmiş kapsamlı bir **yazılımcı toplu
 | Veritabanı | MySQL / MariaDB |
 | Kimlik Doğrulama | Google OAuth 2.0 |
 | Şifreleme | OpenSSL — AES-128-CBC |
-| Güvenlik | Prepared Statements, MD5 dosya isimlendirme |
+| Güvenlik | Prepared Statements, hash tabanlı dosya isimlendirme |
 
 ## Temel Özellikler
 
@@ -190,7 +176,7 @@ CodeOwl, PHP 8.x ve MySQL ile geliştirilmiş kapsamlı bir **yazılımcı toplu
 
 ## Veritabanı Mimarisi
 
-11 ilişkili tablo:
+11 tablo. Tek resmi FK `forum.c_id → categories.id`'dir. Diğer ilişkiler `username` string referansları üzerinden kurulmuştur — ilerleyen versiyonlarda integer FK ilişkilerine geçmeyi planlıyorum.
 
 | Tablo | Amaç |
 |---|---|
@@ -212,33 +198,15 @@ CodeOwl, PHP 8.x ve MySQL ile geliştirilmiş kapsamlı bir **yazılımcı toplu
 
 **Çift Beğeni Önleme:** Her içerik türü için ayrı junction tabloları çift beğeniyi önler.
 
-**Cascade Kullanıcı Adı Güncelleme:** Kullanıcı adı değişikliği tüm ilişkili tablolara tek seferde yansır.
+**Cascade Kullanıcı Adı Güncelleme:** Kullanıcı adı değişikliği tüm ilişkili tablolara tek seferde yansır. İlişkiler integer FK yerine username string üzerinden kurulduğu için bu fonksiyon gerekli hale gelmiştir.
 
-**Dosya Güvenliği:** Dosyalar `md5(time() . $name)` ile yeniden adlandırılır. MIME tipi kategoriye göre doğrulanır.
-
----
+**Dosya Güvenliği:** Dosyalar zaman damgalı hash ile yeniden adlandırılır. MIME tipi kategoriye göre doğrulanır.
 
 ## ER Diagram
 
 ```mermaid
 erDiagram
-  users ||--o{ forum : "creates"
-  users ||--o{ commentsforum : "writes"
-  users ||--o{ likes : "gives"
-  users ||--o{ likescomments : "gives"
-  users ||--o{ devhub : "publishes"
-  users ||--o{ likedevhub : "gives"
-  users ||--o{ messages : "sends"
-  users ||--o{ lastmessages : "has"
-  users ||--o{ follow : "follows"
-  categories ||--o{ forum : "categorizes"
-  categories ||--o{ devhub : "categorizes"
-  forum ||--o{ commentsforum : "has"
-  forum ||--o{ likes : "receives"
-  commentsforum ||--o{ likescomments : "receives"
-  devhub ||--o{ likedevhub : "receives"
-  messages }o--|| lastmessages : "summarized in"
-
+  categories ||--o{ forum : "c_id FK"
   users {
     int id PK
     string username
@@ -265,29 +233,29 @@ erDiagram
     string username
     string text
     int likes
-    int forum_id FK
+    int forum_id
   }
   likes {
     int id PK
     string username
-    int forum_id FK
+    int forum_id
   }
   likescomments {
     int id PK
     string username
-    int comment_id FK
+    int comment_id
   }
   devhub {
     int id PK
     string creater
     string title
     int likes
-    int c_id FK
+    int c_id
   }
   likedevhub {
     int id PK
     string username
-    int d_id FK
+    int d_id
   }
   messages {
     int id PK
@@ -309,5 +277,7 @@ erDiagram
     string getFollowed
   }
 ```
+
+---
 
 *Built by [Furkan Yaşar](https://linkedin.com/in/furkan-yasar0)*
