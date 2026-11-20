@@ -60,6 +60,100 @@ CodeOwl is a full-featured **developer community platform** built with PHP 8.x a
 
 ---
 
+## ER Diagram
+
+```mermaid
+erDiagram
+  users ||--o{ forum : "creates"
+  users ||--o{ commentsforum : "writes"
+  users ||--o{ likes : "gives"
+  users ||--o{ likescomments : "gives"
+  users ||--o{ devhub : "publishes"
+  users ||--o{ likedevhub : "gives"
+  users ||--o{ messages : "sends"
+  users ||--o{ lastmessages : "has"
+  users ||--o{ follow : "follows"
+  categories ||--o{ forum : "categorizes"
+  categories ||--o{ devhub : "categorizes"
+  forum ||--o{ commentsforum : "has"
+  forum ||--o{ likes : "receives"
+  commentsforum ||--o{ likescomments : "receives"
+  devhub ||--o{ likedevhub : "receives"
+  messages }o--|| lastmessages : "summarized in"
+
+  users {
+    int id PK
+    string username
+    string email
+    string role
+    int googleAccount
+    int banned
+  }
+  categories {
+    int id PK
+    string category
+    string type
+    string extension
+  }
+  forum {
+    int forum_id PK
+    string creater
+    string title
+    int likes
+    int c_id FK
+  }
+  commentsforum {
+    int comment_id PK
+    string username
+    string text
+    int likes
+    int forum_id FK
+  }
+  likes {
+    int id PK
+    string username
+    int forum_id FK
+  }
+  likescomments {
+    int id PK
+    string username
+    int comment_id FK
+  }
+  devhub {
+    int id PK
+    string creater
+    string title
+    int likes
+    int c_id FK
+  }
+  likedevhub {
+    int id PK
+    string username
+    int d_id FK
+  }
+  messages {
+    int id PK
+    string code
+    string m_from
+    string m_to
+    int seen
+  }
+  lastmessages {
+    int id PK
+    string code
+    string m_from
+    string m_to
+    int seen
+  }
+  follow {
+    int id PK
+    string follower
+    string getFollowed
+  }
+```
+
+*Built by [Furkan Yaşar](https://linkedin.com/in/furkan-yasar0)*
+
 ---
 
 # 🦉 CodeOwl — Mimari ve Veritabanı Tasarımı
@@ -123,5 +217,97 @@ CodeOwl, PHP 8.x ve MySQL ile geliştirilmiş kapsamlı bir **yazılımcı toplu
 **Dosya Güvenliği:** Dosyalar `md5(time() . $name)` ile yeniden adlandırılır. MIME tipi kategoriye göre doğrulanır.
 
 ---
+
+## ER Diagram
+
+```mermaid
+erDiagram
+  users ||--o{ forum : "creates"
+  users ||--o{ commentsforum : "writes"
+  users ||--o{ likes : "gives"
+  users ||--o{ likescomments : "gives"
+  users ||--o{ devhub : "publishes"
+  users ||--o{ likedevhub : "gives"
+  users ||--o{ messages : "sends"
+  users ||--o{ lastmessages : "has"
+  users ||--o{ follow : "follows"
+  categories ||--o{ forum : "categorizes"
+  categories ||--o{ devhub : "categorizes"
+  forum ||--o{ commentsforum : "has"
+  forum ||--o{ likes : "receives"
+  commentsforum ||--o{ likescomments : "receives"
+  devhub ||--o{ likedevhub : "receives"
+  messages }o--|| lastmessages : "summarized in"
+
+  users {
+    int id PK
+    string username
+    string email
+    string role
+    int googleAccount
+    int banned
+  }
+  categories {
+    int id PK
+    string category
+    string type
+    string extension
+  }
+  forum {
+    int forum_id PK
+    string creater
+    string title
+    int likes
+    int c_id FK
+  }
+  commentsforum {
+    int comment_id PK
+    string username
+    string text
+    int likes
+    int forum_id FK
+  }
+  likes {
+    int id PK
+    string username
+    int forum_id FK
+  }
+  likescomments {
+    int id PK
+    string username
+    int comment_id FK
+  }
+  devhub {
+    int id PK
+    string creater
+    string title
+    int likes
+    int c_id FK
+  }
+  likedevhub {
+    int id PK
+    string username
+    int d_id FK
+  }
+  messages {
+    int id PK
+    string code
+    string m_from
+    string m_to
+    int seen
+  }
+  lastmessages {
+    int id PK
+    string code
+    string m_from
+    string m_to
+    int seen
+  }
+  follow {
+    int id PK
+    string follower
+    string getFollowed
+  }
+```
 
 *Built by [Furkan Yaşar](https://linkedin.com/in/furkan-yasar0)*
