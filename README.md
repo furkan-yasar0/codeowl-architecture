@@ -89,4 +89,4 @@ codeowl-architecture/
 
 ---
 
-*Built by [Furkan Yaşar](https://linkedin.com/in/furkan-yasar)*
+*Built by [Furkan Yaşar](https://linkedin.com/in/furkan-yasar0)*
